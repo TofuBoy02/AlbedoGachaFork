@@ -31,13 +31,16 @@ async def ul(ctx, extension):
 
 @client.command()
 @commands.has_any_role(1008304083213488229)
-async def reload(ctx, extension):
-  client.load_extension(f'cogs.{extension}')
+async def r(ctx, extension):
+  await ctx.message.delete()
   client.unload_extension(f'cogs.{extension}')
+  client.load_extension(f'cogs.{extension}')
 
 for filename in os.listdir('./cogs'):
   if filename.endswith('.py'):
     client.load_extension(f'cogs.{filename[:-3]}')
+
+
 
 
 @client.event
@@ -48,6 +51,7 @@ async def on_member_join(member):
     embed.set_thumbnail(url=member.avatar_url) # Set the embed's thumbnail to the member's avatar image!
 
     await channel.send(f"<@{member.id}>", embed=embed)
+
 
 
 

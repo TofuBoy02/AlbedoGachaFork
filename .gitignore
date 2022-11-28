@@ -1,2 +1,5 @@
 cards
 .env
+.vscode
+g.py
+addcard.py
