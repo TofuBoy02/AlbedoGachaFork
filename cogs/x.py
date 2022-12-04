@@ -146,7 +146,7 @@ class chat(commands.Cog):
 
         # DEFINE UNIX TIMES
         current_unix = int(time.time())
-        current_unix_added = current_unix + 10800
+        current_unix_added = current_unix + 3600
         current_unix_added_cecilia = current_unix + 600
 
         # CHECK IF CARD IS CLAIMED
