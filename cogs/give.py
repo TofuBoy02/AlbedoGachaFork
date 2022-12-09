@@ -61,7 +61,8 @@ class view(commands.Cog):
           uid_to_user = self.client.get_user(int(user)).name
 
         current = database.child("users").child(user).child("currency").get().val()
-        database.child("users").child(user).update({"currency": int(current) + int(amount)})
+
+        database.child("users").child(user).update({"currency": current + int(amount)})
         
         await ctx.reply(f"Added {amount} cecilias to {uid_to_user}")
     #print error
