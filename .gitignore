@@ -1,3 +1,4 @@
 cards
 .env
 .vscode
+cogs/__pycache__

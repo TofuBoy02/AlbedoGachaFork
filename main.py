@@ -20,17 +20,17 @@ async def on_ready():
   print('We have logged in as {0.user}'.format(client))
 
 @client.command()
-@commands.has_any_role(1008304083213488229)
+@commands.has_any_role(1008304083213488229, 904248711771746314)
 async def l(ctx, extension):
   client.load_extension(f'cogs.{extension}')
 
 @client.command()
-@commands.has_any_role(1008304083213488229)
+@commands.has_any_role(1008304083213488229, 904248711771746314)
 async def ul(ctx, extension):
   client.unload_extension(f'cogs.{extension}')
 
 @client.command()
-@commands.has_any_role(1008304083213488229)
+@commands.has_any_role(1008304083213488229, 904248711771746314)
 async def r(ctx, extension):
   await ctx.message.delete()
   client.unload_extension(f'cogs.{extension}')

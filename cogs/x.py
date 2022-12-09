@@ -200,7 +200,7 @@ class chat(commands.Cog):
                 reaction, user = await self.client.wait_for(
                     "reaction_add",
                     check=lambda reaction, user: reaction.message == message,
-                    timeout=15
+                    timeout=20
                 )
 
                 # CLAIM EVENT
@@ -209,25 +209,20 @@ class chat(commands.Cog):
 
                     if not card_is_claimed:
                         await message.edit(content="", embed=embed.set_footer(text=f"Claimed by {user.name}"))
-                        database.child("users").child(
-                            user.id).update({"currency": 0})
-                        database.child("users").child(user.id).child("owned_cards").child(
-                            card_data['card_name']).set(claimed_card_data)
-                        database.child("users").child(user.id).update(
-                            {"claim_time": current_unix_added})
-                        database.child("cards").child(f"{final_rarity}").child(
-                            random_card_index).update({"claimed": "true"})
-                        database.child("cards").child(f"{final_rarity}").child(
-                            random_card_index).update({"owned_by": user.id})
+                        database.child("users").child(user.id).update({"currency": 0})
+                        database.child("users").child(user.id).update({"username": user.name})
+                        database.child("users").child(user.id).child("owned_cards").child(card_data['card_name']).set(claimed_card_data)
+                        database.child("users").child(user.id).update({"claim_time": current_unix_added})
+                        database.child("cards").child(f"{final_rarity}").child(random_card_index).update({"claimed": "true"})
+                        database.child("cards").child(f"{final_rarity}").child(random_card_index).update({"owned_by": user.id})
                         return
 
                     if card_is_claimed:
 
                         await message.edit(content="", embed=embed.set_footer(text=f"Added 50 Cecilia for {user.name}"))
-                        database.child("users").child(
-                            user.id).update({"currency": 50})
-                        database.child("users").child(user.id).update(
-                            {"claim_time": current_unix_added_cecilia})
+                        database.child("users").child(user.id).update({"username": user.name})
+                        database.child("users").child(user.id).update({"currency": 50})
+                        database.child("users").child(user.id).update({"claim_time": current_unix_added_cecilia})
                         return
 
                 elif database.child("users").child(user.id).shallow().get().val():
@@ -238,24 +233,19 @@ class chat(commands.Cog):
 
                         if not card_is_claimed:
                             await message.edit(content="", embed=embed.set_footer(text=f"Claimed by {user.name}"))
-                            database.child("users").child(user.id).child("owned_cards").child(
-                                card_data['card_name']).set(claimed_card_data)
-                            database.child("users").child(user.id).update(
-                                {"claim_time": current_unix_added})
-                            database.child("cards").child(f"{final_rarity}").child(
-                                random_card_index).update({"claimed": "true"})
-                            database.child("cards").child(f"{final_rarity}").child(
-                                random_card_index).update({"owned_by": user.id})
+                            database.child("users").child(user.id).child("owned_cards").child(card_data['card_name']).set(claimed_card_data)
+                            database.child("users").child(user.id).update({"claim_time": current_unix_added})
+                            database.child("cards").child(f"{final_rarity}").child(random_card_index).update({"claimed": "true"})
+                            database.child("cards").child(f"{final_rarity}").child(random_card_index).update({"owned_by": user.id})
+                            database.child("users").child(user.id).update({"username": user.name})
                             return
 
                         elif card_is_claimed:
                             await message.edit(content="", embed=embed.set_footer(text=f"Added 50 Cecilia for {user.name}"))
-                            current_balance = database.child("users").child(
-                                user.id).child("currency").get().val()
-                            database.child("users").child(user.id).update(
-                                {"currency": current_balance + 50})
-                            database.child("users").child(user.id).update(
-                                {"claim_time": current_unix_added_cecilia})
+                            current_balance = database.child("users").child(user.id).child("currency").get().val()
+                            database.child("users").child(user.id).update({"currency": current_balance + 50})
+                            database.child("users").child(user.id).update({"claim_time": current_unix_added_cecilia})
+                            database.child("users").child(user.id).update({"username": user.name})
                             return
 
                     if current_unix < saved_unix:
