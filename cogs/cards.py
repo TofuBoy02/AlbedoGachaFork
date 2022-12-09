@@ -6,6 +6,20 @@ load_dotenv()
 import pyrebase
 TOKEN = os.getenv('TOKEN')
 
+service = {
+    
+  "type": "service_account",
+  "project_id": os.getenv('project_id'),
+  "private_key_id": os.getenv('private_key_id'),
+  "private_key": os.getenv('private_key'),
+  "client_email": os.getenv('client_email'),
+  "client_id": os.getenv('client_id'),
+  "auth_uri": os.getenv('auth_uri'),
+  "token_uri": os.getenv('token_uri'),
+  "auth_provider_x509_cert_url": os.getenv('auth_provider_x509_cert_url'),
+  "client_x509_cert_url": os.getenv('client_x509_cert_url')
+}
+
 config = {
     'apiKey': os.getenv('apiKey'),
     'authDomain': os.getenv('authDomain'),
@@ -14,8 +28,10 @@ config = {
     'messagingSenderId': os.getenv('messagingSenderId'),
     'appId': os.getenv('appId'),
     'measurementId': os.getenv('measurementId'),
-     'databaseURL': os.getenv('databaseURL')
-}
+    'databaseURL': os.getenv('databaseURL'),
+    "serviceAccount": service
+
+} 
 
 firebase = pyrebase.initialize_app(config)
 database = firebase.database()
