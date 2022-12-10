@@ -48,24 +48,17 @@ class bal(commands.Cog):
     print('bal cog is online')
     
   @commands.command()
-  async def bal(self,ctx, user=None):
-    if user == None:
-      try:
-        balance = database.child("users").child(ctx.author.id).child("currency").get().val()
-        await ctx.reply(f"You have {balance} <:cecilia:1038333000905134141>")
-      except:
-        await ctx.reply("You have no cecilias! You can earn cecilias by claiming cecilia cards or selling your claimed cards!")
-    elif user != None:
-      try:
-        if user.startswith("<@"):
-          user = int(user[2:-1])
-          uid_to_user = self.client.get_user(user).name
-        else:
-          uid_to_user = self.client.get_user(int(user)).name
-        balance = database.child("users").child(user).child("currency").get().val()
-        await ctx.reply(f"{uid_to_user} have {balance} <:cecilia:1038333000905134141>")
-      except:
-        await ctx.reply("Could find {uid_to_user}'s account.")
+  async def pulls(self,ctx):
+    try:
+      pulls = database.child("users").child(ctx.author.id).child("pulls").child("amount").get().val()
+      if pulls == None:
+        await ctx.reply("You need to pull first to initiate an account.")
+        return
+      await ctx.reply(f"You have {pulls} pulls.")
+    except:
+      await ctx.reply("Your account is not listed in the database! You should pull first.")
+      
+    
 
   
         

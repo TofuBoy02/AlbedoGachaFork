@@ -55,41 +55,6 @@ status_claimed = {"status": "claimed",
 status_can_claim = {"status": "can_claim"}
 
 
-# class CooldownManager:
-
-#     def __init__(self, executions_allowed: int, cooldown_time: float):
-#         self.state = {}
-#         self.executions_allowed = executions_allowed
-#         self.cooldown_time = cooldown_time
-
-#     def time_left(self, key) -> float:
-#         """Attempt to execute. Return 0 if ready, or the number of seconds until you're allowed to execute again."""
-#         if key not in self.state.keys():
-#             self.state[key] = []
-#         if len(self.state[key]) > 0:
-#             # Clean up executions that have aged away
-#             # self.state[key] is sorted with the newest first
-#             for i in range(len(self.state[key])-1, -1, -1):
-#                 if self.state[key][i] + self.cooldown_time < time.time():
-#                     del self.state[key][i]
-#             if len(self.state[key]) < self.executions_allowed:
-#                 self.state[key].append(time.time())
-#                 return 0
-#             next_available_execution = self.state[key][len(
-#                 self.state)-1] + self.cooldown_time
-#             return next_available_execution - time.time()
-#         else:
-#             self.state[key].append(time.time())
-#             return 0
-
-#     def assert_cooldown(self, data):
-#         """Run this at the beginning of the command."""
-#         time_left = self.time_left(data)
-#         if time_left > 0:
-#             raise commands.CommandOnCooldown('', retry_after=time_left)
-
-# cm1 = CooldownManager(1, 2.0)  # execute once every 3 seconds
-# cm2 = CooldownManager(5, 1800.0)  # execute up to 5x every 10 minutes
 
 
 class chat(commands.Cog):
@@ -105,23 +70,30 @@ class chat(commands.Cog):
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             remaining_seconds = int(round(error.retry_after, 2))
-            
-            if remaining_seconds < 60:
-              remaining_time = format_timespan(remaining_seconds)
-              await ctx.reply(f"Try again in {remaining_time}")
-            elif remaining_seconds > 10:
-              # remaining_time = time.strftime("%Mm%Ss", time.gmtime(remaining_seconds))
-              remaining_time = format_timespan(remaining_seconds)
-              await ctx.reply(f"You've used up all your pulls! Try again in {remaining_time}")
+            await ctx.reply("You're going too fast!")
+        
             
         else:
             print(error)
 
-    @commands.cooldown(5, 1800, commands.BucketType.user)
+    @commands.cooldown(1, 1, commands.BucketType.user)
     @commands.command()
     async def g(self, ctx, uid=None):
-        # cm1.assert_cooldown(ctx.author.id)  # This is basically the bucket type. You can use things like ctx.author.id, ctx.guild.id, etc
-        # cm2.assert_cooldown(ctx.author.id)
+    
+        # check number of pulls in database
+        try:
+            user_pull_data = database.child('users').child(ctx.author.id).child('pulls').get().val()
+            if user_pull_data['amount'] > 0:
+                database.child('users').child(ctx.author.id).child('pulls').update({"amount": user_pull_data['amount']-1})
+            elif user_pull_data['amount'] <= 0:
+                time_remaining = database.child('pull_refresh').child('unix').get().val()
+                time_remaining = time_remaining - int(time.time())
+                await ctx.reply(f"You have used up all your pulls! You will get {user_pull_data['speed']} pulls in {format_timespan(time_remaining)} seconds.")
+                return
+        except:
+            user_pull_data = {"amount": 4, "speed": 5, "max": 5}
+            database.child('users').child(ctx.author.id).child('pulls').set(user_pull_data)
+
 
         rarities = ["rarity-3", "rarity-4", "rarity-5"]
         chance = [50, 44, 6]
@@ -137,12 +109,15 @@ class chat(commands.Cog):
             list(counter_res.values()).index(1)]
 
         if final_rarity == "rarity-3":
+            rarity_cecilia = 20
             card_index = rarity_3_index - 1
             rarity_stars = "⭐⭐⭐"
         elif final_rarity == "rarity-4":
+            rarity_cecilia = 100
             card_index = rarity_4_index - 1
             rarity_stars = "⭐⭐⭐⭐"
         elif final_rarity == "rarity-5":
+            rarity_cecilia = 500
             card_index = rarity_5_index - 1
             rarity_stars = "⭐⭐⭐⭐⭐"
 
@@ -189,7 +164,7 @@ class chat(commands.Cog):
             except:
               uid_to_user = "Error"
             embed.set_footer(
-                text=f"Owned by {uid_to_user}. Claim to get 50 cecilia.")
+                text=f"Owned by {uid_to_user}. Claim to get {rarity_cecilia} cecilia.")
 
         # SENDS THE EMBED
         # await message.edit(content="", embed=embed)
@@ -205,13 +180,13 @@ class chat(commands.Cog):
 
                 # CLAIM EVENT
 
-                if not database.child("users").child(user.id).shallow().get().val():
+                if not database.child("users").child(user.id).child("claim_time").get().val():
 
                     if not card_is_claimed:
                         await message.edit(content="", embed=embed.set_footer(text=f"Claimed by {user.name}"))
                         database.child("users").child(user.id).update({"currency": 0})
                         database.child("users").child(user.id).update({"username": user.name})
-                        database.child("users").child(user.id).child("owned_cards").child(card_data['card_name']).set(claimed_card_data)
+                        database.child("users").child(user.id).child("owned_cards").child(card_data['card_name']).update(claimed_card_data)
                         database.child("users").child(user.id).update({"claim_time": current_unix_added})
                         database.child("cards").child(f"{final_rarity}").child(random_card_index).update({"claimed": "true"})
                         database.child("cards").child(f"{final_rarity}").child(random_card_index).update({"owned_by": user.id})
@@ -219,9 +194,9 @@ class chat(commands.Cog):
 
                     if card_is_claimed:
 
-                        await message.edit(content="", embed=embed.set_footer(text=f"Added 50 Cecilia for {user.name}"))
+                        await message.edit(content="", embed=embed.set_footer(text=f"Added {rarity_cecilia} Cecilia for {user.name}"))
                         database.child("users").child(user.id).update({"username": user.name})
-                        database.child("users").child(user.id).update({"currency": 50})
+                        database.child("users").child(user.id).update({"currency": rarity_cecilia})
                         database.child("users").child(user.id).update({"claim_time": current_unix_added_cecilia})
                         return
 
@@ -233,7 +208,7 @@ class chat(commands.Cog):
 
                         if not card_is_claimed:
                             await message.edit(content="", embed=embed.set_footer(text=f"Claimed by {user.name}"))
-                            database.child("users").child(user.id).child("owned_cards").child(card_data['card_name']).set(claimed_card_data)
+                            database.child("users").child(user.id).child("owned_cards").child(card_data['card_name']).update(claimed_card_data)
                             database.child("users").child(user.id).update({"claim_time": current_unix_added})
                             database.child("cards").child(f"{final_rarity}").child(random_card_index).update({"claimed": "true"})
                             database.child("cards").child(f"{final_rarity}").child(random_card_index).update({"owned_by": user.id})
@@ -241,9 +216,9 @@ class chat(commands.Cog):
                             return
 
                         elif card_is_claimed:
-                            await message.edit(content="", embed=embed.set_footer(text=f"Added 50 Cecilia for {user.name}"))
+                            await message.edit(content="", embed=embed.set_footer(text=f"Added {rarity_cecilia} Cecilia for {user.name}"))
                             current_balance = database.child("users").child(user.id).child("currency").get().val()
-                            database.child("users").child(user.id).update({"currency": current_balance + 50})
+                            database.child("users").child(user.id).update({"currency": current_balance + rarity_cecilia})
                             database.child("users").child(user.id).update({"claim_time": current_unix_added_cecilia})
                             database.child("users").child(user.id).update({"username": user.name})
                             return

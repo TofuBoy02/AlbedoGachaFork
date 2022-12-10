@@ -49,7 +49,7 @@ class buy(commands.Cog):
     print('buy cog is online')
     
   @commands.command()
-  async def buy(self,ctx, *, item=None):
+  async def buy(self,ctx, item=None, amount=1):
 
     user_bal = database.child("users").child(ctx.author.id).child("currency").get().val()
 
@@ -57,16 +57,14 @@ class buy(commands.Cog):
       await ctx.reply("Please specify the item.")
 
     elif item.lower() == "pulls" or item.lower() == "pull":
-      try:
-        if user_bal >= 100:
-          self.client.get_command("g").reset_cooldown(ctx)
-          await ctx.reply("Finished resetting your pulls to 5.")
-          database.child("users").child(ctx.author.id).update({"currency":user_bal-100})
-
-        if user_bal < 100:
-          await ctx.reply("You don't have enough <:cecilia:1038333000905134141> to buy \"pull\"")
-      except TypeError:
-        await ctx.reply("You don't have enough <:cecilia:1038333000905134141> to buy \"pull\"")
+      if amount != 0:
+        if user_bal >= amount*10:
+          database.child("users").child(ctx.author.id).update({"currency": user_bal-(amount*10)})
+          current_pulls = database.child("users").child(ctx.author.id).child("pulls").child("amount").get().val()
+          database.child("users").child(ctx.author.id).child("pulls").update({"amount": current_pulls+amount})
+          await ctx.reply(f"added {amount} pulls to your account.")
+        # else:
+        #   await ctx.reply("You don't have enough money.")
 
 
     elif item.lower() == "claims" or item.lower() == "claim":
