@@ -82,6 +82,8 @@ class pulladd(commands.Cog):
           database.child("users").child(user).child("pulls").update({"amount": max_pulls})
       elif not database.child("users").child(user).child("pulls").get().val():
         print("Not in data")
+      time.sleep(0.5)
+      
 
   @loopadd.before_loop
   async def before_printer(self):
