@@ -79,7 +79,7 @@ class buy(commands.Cog):
         if user_bal > 500 or user_bal == 500:
           new_bal = user_bal - 500
           await ctx.reply(f"Bought Claim Reset. You can now claim a card. Your new balance is {new_bal}")
-          database.child("users").child(ctx.author.id).update({"claim_time": 0})
+          database.child("users").child(ctx.author.id).update({"claim_time": 1})
           database.child("users").child(ctx.author.id).update({"currency": new_bal})
 
         if user_bal < 500:
