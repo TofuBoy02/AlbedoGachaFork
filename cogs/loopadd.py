@@ -60,6 +60,7 @@ class pulladd(commands.Cog):
     database.child("pull_refresh").child("unix").set(int(time.time()) + 600)
     all_users = database.child("users").shallow().get().val()
     for user in all_users:
+      print(user)
       if database.child("users").child(user).child("pulls").get().val():
         user_data = database.child("users").child(user).child("pulls").get().val()
         # print(user_data)
@@ -69,20 +70,31 @@ class pulladd(commands.Cog):
 
         
         remaining_slots = max_pulls - current_pulls
+        print(remaining_slots)
         # print(f"Remaining Slots: {remaining_slots}")
-        if remaining_slots >= speed:
-          print("adding new amount")
-          database.child("users").child(user).child("pulls").update({"amount": current_pulls + speed})
-          print("added new amount")
-        elif current_pulls > max_pulls:
-          print("User has more pulls than max, can't give more.")
-        elif remaining_slots == 0:
-          print("User has max pulls. Can't add more.")
-        elif remaining_slots < max_pulls:
-          database.child("users").child(user).child("pulls").update({"amount": max_pulls})
-      elif not database.child("users").child(user).child("pulls").get().val():
-        print("Not in data")
-      time.sleep(0.5)
+      #   if remaining_slots >= max_pulls:
+      #     print("adding new amount")
+      #     database.child("users").child(user).child("pulls").update({"amount": current_pulls + speed})
+      #     print("added new amount")
+      #   elif current_pulls > max_pulls:
+      #     print("User has more pulls than max, can't give more.")
+      #   elif remaining_slots == 0:
+      #     print("User has max pulls. Can't add more.")
+      #   elif remaining_slots < max_pulls:
+      #     database.child("users").child(user).child("pulls").update({"amount": max_pulls})
+      # elif not database.child("users").child(user).child("pulls").get().val():
+      #   print("Not in data")
+
+      if remaining_slots + speed <= max_pulls: # if the the pulls are less than or will be equal to max
+        print(f"Adding {speed} because final pulls is less than or equal to max.")
+        database.child("users").child(user).child("pulls").update({"amount": current_pulls + speed})
+      elif current_pulls > max_pulls: #if the user has more pulls in their account than maximum, skip
+        print(f"Not adding because user has more pulls than the maximum amount.")
+      elif remaining_slots + speed > max_pulls:
+        print(f"Setting amout of pulls to max because {remaining_slots + speed} is more than max.") #if the user will have more pulls than max if updated, set their pulls to max to prevent overflow
+        database.child("users").child(user).child("pulls").update({"amount": max_pulls})
+      
+      time.sleep(1)
       
 
   @loopadd.before_loop
