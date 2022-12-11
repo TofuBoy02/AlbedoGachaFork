@@ -66,15 +66,15 @@ class chat(commands.Cog):
     async def on_ready(self):
         print('gacha cog is online')
 
-    @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
-        if isinstance(error, commands.CommandOnCooldown):
-            remaining_seconds = int(round(error.retry_after, 2))
-            await ctx.reply("You're going too fast!")
+    # @commands.Cog.listener()
+    # async def on_command_error(self, ctx, error):
+    #     if isinstance(error, commands.CommandOnCooldown):
+    #         remaining_seconds = int(round(error.retry_after, 2))
+    #         await ctx.reply("You're going too fast!")
         
             
-        else:
-            print(error)
+    #     else:
+    #         print(error)
 
     @commands.cooldown(1, 1, commands.BucketType.user)
     @commands.command()
@@ -157,12 +157,16 @@ class chat(commands.Cog):
 
         # ADD FOOTER IF CARD IS CLAIMED BY SOMEONE ELSE ALREADY
         if card_is_claimed:
-            owner = database.child("cards").child(f"{final_rarity}").child(
+            owner: int = database.child("cards").child(f"{final_rarity}").child(
                 random_card_index).child("owned_by").get().val()
-            try:
-              uid_to_user = self.client.get_user(owner).name
-            except:
-              uid_to_user = "Error"
+
+            # try:
+         
+            uid_to_user = await self.client.fetch_user(owner)
+            uid_to_user = str(uid_to_user)[:-5]
+            
+            # except:
+            #   uid_to_user = "Error"
             embed.set_footer(
                 text=f"Owned by {uid_to_user}. Claim to get {rarity_cecilia} cecilia.")
 

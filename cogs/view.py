@@ -77,7 +77,9 @@ class view(commands.Cog):
         embed.set_image(url=card['image'])
 
         if card['claimed'] == "true" or card['claimed'] == True:
-          uid_to_user = self.client.get_user(card['owned_by']).name
+          uid: int = card['owned_by']
+          uid_to_user = await self.client.fetch_user(uid)
+          uid_to_user = str(uid_to_user)[:-5]
           embed.set_footer(text=f"Owned by {uid_to_user}")
 
         await ctx.reply(embed=embed)
