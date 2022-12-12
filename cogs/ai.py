@@ -65,7 +65,8 @@ class ai(commands.Cog):
       elif prompt_msg != None:
 
         response = requests.get(f"https://tofuboy.pythonanywhere.com/albedo?query={prompt_msg}")
-        print(response.json()['text'])
+        response = response.json()['text']
+        await ctx.reply(response)
 
         
 
