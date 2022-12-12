@@ -43,14 +43,14 @@ for filename in os.listdir('./cogs'):
 
 
 
-@client.event
-async def on_member_join(member):
-    welcome = 1007935143383670847
-    channel = client.get_channel(int(welcome))
-    embed=discord.Embed(title=f"Welcome {member.name}", description="Welcome to the server! If you joined to talk to Albedo AI, you can go to <#1008319961179115531>.", color=16041501) # F-Strings!
-    embed.set_thumbnail(url=member.avatar_url) # Set the embed's thumbnail to the member's avatar image!
+# @client.event
+# async def on_member_join(member):
+#     welcome = 1007935143383670847
+#     channel = client.get_channel(int(welcome))
+#     embed=discord.Embed(title=f"Welcome {member.name}", description="Welcome to the server! If you joined to talk to Albedo AI, you can go to <#1008319961179115531>.", color=16041501) # F-Strings!
+#     embed.set_thumbnail(url=member.avatar_url) # Set the embed's thumbnail to the member's avatar image!
 
-    await channel.send(f"<@{member.id}>", embed=embed)
+#     await channel.send(f"<@{member.id}>", embed=embed)
 
 
 
