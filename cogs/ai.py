@@ -66,7 +66,7 @@ class ai(commands.Cog):
         message = await ctx.reply("Thinking...")
         response = requests.get(f"https://tofuboy.pythonanywhere.com/albedo?query={prompt_msg}", verify=False)
         response = response.json()['text']
-        await message.edit(response)
+        await message.edit(content=response)
 
     reference = ctx.reference
     if reference is None:
@@ -77,7 +77,7 @@ class ai(commands.Cog):
         prompt_msg = str(ctx.content)[3:]
         response = requests.get(f"https://tofuboy.pythonanywhere.com/albedo?query={prompt_msg}", verify=False)
         response = response.json()['text']
-        await message.edit(response)
+        await message.edit(content=response)
 
         
 
