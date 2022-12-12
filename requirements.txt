@@ -2,4 +2,4 @@ discord.py==1.7.3
 pyrebase
 python-dotenv
 humanfriendly
-openai
+openai==0.25.0
