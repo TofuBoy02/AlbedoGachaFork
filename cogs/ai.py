@@ -63,10 +63,21 @@ class ai(commands.Cog):
       if prompt_msg ==None:
         await ctx.reply("Please send a message~")
       elif prompt_msg != None:
-
+        message = await ctx.reply("Thinking...")
         response = requests.get(f"https://tofuboy.pythonanywhere.com/albedo?query={prompt_msg}", verify=False)
         response = response.json()['text']
-        await ctx.reply(response)
+        await message.edit(response)
+
+    reference = ctx.reference
+    if reference is None:
+      return
+    else:
+      if ctx.reference.resolved.author.id == 1007934486815723520:
+        message = await ctx.reply("Thinking...")
+        prompt_msg = str(ctx.content)[3:]
+        response = requests.get(f"https://tofuboy.pythonanywhere.com/albedo?query={prompt_msg}", verify=False)
+        response = response.json()['text']
+        await message.edit(response)
 
         
 
