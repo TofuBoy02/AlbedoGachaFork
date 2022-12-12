@@ -74,7 +74,7 @@ class ai(commands.Cog):
     else:
       if ctx.reference.resolved.author.id == 1007934486815723520:
         message = await ctx.reply("Thinking...")
-        prompt_msg = str(ctx.content)[3:]
+        prompt_msg = str(ctx.content)
         response = requests.get(f"https://tofuboy.pythonanywhere.com/albedo?query={prompt_msg}", verify=False)
         response = response.json()['text']
         await message.edit(content=response)
